@@ -9,6 +9,13 @@ ENV RESOLUTION=1280x720
 # Expose noVNC and VNC ports
 EXPOSE 6080 5900
 
+# Remove Google Chrome repo
+RUN rm -f /etc/apt/sources.list.d/google-chrome.list
+RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
+    apt-get update && \
+    apt-get install -y vim git wget curl net-tools && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Optional: install extra packages
 RUN apt-get update && apt-get install -y \
     vim \
