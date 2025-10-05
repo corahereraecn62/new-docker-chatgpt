@@ -1,27 +1,23 @@
-# Base image with LXDE, VNC, noVNC
+# Use dorowu's Ubuntu Desktop LXDE with VNC + noVNC
 FROM dorowu/ubuntu-desktop-lxde-vnc:latest
 
-# Environment variables
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TINI_SUBREAPER=1
-ENV DISPLAY=:1
-ENV PASSWORD_FILE=/.vnc/passwd
+# Set environment variables
+ENV USER=railway
+ENV PASSWORD=railway123
+ENV RESOLUTION=1280x720
 
-# Disable Google Chrome repo to avoid GPG error
-RUN sed -i '/dl.google.com\/linux\/chrome/d' /etc/apt/sources.list /etc/apt/sources.list.d/* || true
+# Expose noVNC and VNC ports
+EXPOSE 6080 5900
 
-# Update and install Python + Flask
-USER root
-RUN apt-get update && \
-    apt-get install -y python3 python3-pip && \
-    pip3 install flask && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Optional: install extra packages
+RUN apt-get update && apt-get install -y \
+    vim \
+    git \
+    wget \
+    curl \
+    net-tools \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy Flask wrapper
-COPY run.py /root/run.py
-
-# Expose noVNC port (Railway PORT will override)
-EXPOSE 6080
-
-# Start supervisor (already included in base image)
-CMD ["supervisord", "-n"]
+# Default command to start VNC + noVNC server
+CMD ["/startup.sh"]
