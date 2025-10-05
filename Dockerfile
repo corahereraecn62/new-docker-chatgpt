@@ -1,30 +1,31 @@
-# Use dorowu's Ubuntu Desktop LXDE with VNC + noVNC
 FROM dorowu/ubuntu-desktop-lxde-vnc:latest
 
-# Set environment variables
+
 ENV USER=railway
 ENV PASSWORD=railway123
 ENV RESOLUTION=1280x720
+ENV PORT=6080
+ENV NOVNC_PORT=${PORT}
 
-# Expose noVNC and VNC ports
-EXPOSE 6080 5900
 
-# Remove Google Chrome repo
+# Remove Google Chrome repo to avoid apt errors
 RUN rm -f /etc/apt/sources.list.d/google-chrome.list
-RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
-    apt-get update && \
-    apt-get install -y vim git wget curl net-tools && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Optional: install extra packages
+
+# Install optional packages
 RUN apt-get update && apt-get install -y \
-    vim \
-    git \
-    wget \
-    curl \
-    net-tools \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+vim \
+git \
+wget \
+curl \
+net-tools \
+&& apt-get clean \
+&& rm -rf /var/lib/apt/lists/*
 
-# Default command to start VNC + noVNC server
-CMD ["/startup.sh"]
+
+# Expose Railway port (dynamic) and VNC port (optional)
+EXPOSE ${PORT} 5900
+
+
+# Start LXDE + VNC + noVNC using Railway port
+CMD ["/startup.sh", "-novnc-port", "${NOVNC_PORT}"]
